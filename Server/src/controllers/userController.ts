@@ -2,6 +2,15 @@ import {Request, Response} from "express"
 import bcrypt from "bcryptjs"
 import prisma from "../lib/prismaClient"
 import { User } from "../model/uer.model"
+import { z } from 'zod';
+
+const createUserSchema = z.object({
+    name:z.string().min(1,"Name is required"),
+    email:z.string().email("Invalid email address"),
+    role:z.string().min(1,"Please define your role!"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+
+})
 
 interface createUser extends Request {
     body: User
@@ -9,14 +18,17 @@ interface createUser extends Request {
 
 export const createUser = async (req:Request, res:Response) => {
     try {
-        const {name, email,role,password} = req.body
+
+        const validatedData = createUserSchema.parse(req.body);
+
+        // const {name, email,role,password} = req.body
         const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password,salt)
+        const hashedPassword = await bcrypt.hash(validatedData.password,salt)
         const newUser = await prisma.user.create({
             data : {
-                name,
-                email,
-                role,
+                name:validatedData.name,
+                email:validatedData.email,
+                role:validatedData.role,
                 password:hashedPassword
             }
         });
