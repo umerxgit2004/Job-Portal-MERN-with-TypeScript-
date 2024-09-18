@@ -37,11 +37,21 @@ export const createUser = async (req:Request, res:Response) => {
             user: newUser
         })
     } catch(e){
-        res.status(500).json({
-            message: 'An error occurred while creating the user',
-            error: {e}
-          });
-       
+        if (e instanceof z.ZodError){
+            res.status(400).json({
+                message:"Validation error",
+                errors: 'e.errors',
+
+            })
+        }
+        else{
+            res.status(500).json({
+                message: 'An error occurred while creating the user ',
+                error: {e}
+              });
+           
+        }
+        
     }
 }
 

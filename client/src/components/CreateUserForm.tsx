@@ -26,8 +26,17 @@ const Form: React.FC = () => {
       });
       console.log('User created:', response.data);
       fetchUsers(); // Refresh the users list after creating
-    } catch (error) {
-      console.error('Error creating user:', error);
+    } catch (error:any) {
+        if (error.response.status === 400){
+            console.log('Validation error response:', error.response.data); // Log to inspect the structure
+            alert("Please input the data correctly")
+            
+        }else{
+                    // For other errors (500 or network issues)
+               alert("An error occurred while creating the user 500?");
+
+        }
+    
     }
   };
 
